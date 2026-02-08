@@ -7,6 +7,8 @@ import SystemDialog from "./components/SystemDialog";
 import ShelfView from "./views/ShelfView";
 import SetView from "./views/SetView";
 import FolderView from "./views/FolderView";
+// DB imports
+import { getShelves, addShelf, updateShelf, deleteShelf } from "./api/shelves";
 
 // -- MOCKI --
 const initialFolders = [
@@ -71,7 +73,7 @@ const initialShelves = [
   { id: 4, name: "B-2" },
 ];
 
-// Motyw i język
+///// Motyw i język /////
 const theme = createTheme(
   {
     // Motyw
@@ -84,6 +86,13 @@ const theme = createTheme(
 );
 
 export default function App() {
+  ////////// DB ///////////
+  // Pobranie półek z bazy danych
+  useEffect(() => {
+    getShelves().then(setShelves);
+  }, []);
+  /////////////////////////
+
   // -- STANY DANYCH --
   const [folders, setFolders] = useState(initialFolders);
   const [sets, setSets] = useState(initialSets);
