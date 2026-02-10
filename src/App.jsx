@@ -10,69 +10,6 @@ import FolderView from "./views/FolderView";
 // DB imports
 import { getShelves, addShelf, updateShelf, deleteShelf } from "./api/shelves";
 
-// -- MOCKI --
-const initialFolders = [
-  {
-    id: 1,
-    sign: "1234",
-    title: "Umowa najmu i wynajmu odzieży oraz ubrań",
-    dateFrom: "2021",
-    dateTo: "",
-    category: "A",
-    amount: 3,
-    shelfId: null,
-    setId: 1,
-    status: 0, // 1 = dostępna, 0 = zniszczona
-  },
-  {
-    id: 2,
-    sign: "2040",
-    title:
-      "Dokumentacja izomtrycznie symetrycznych opakowań produkowanych w latach 2022 - 2023",
-    dateFrom: "2022",
-    dateTo: "2023",
-    category: "B",
-    amount: 1,
-    shelfId: 4,
-    setId: 2,
-    status: 1,
-  },
-  {
-    id: 3,
-    sign: "2040",
-    title: "Teczka z tajnymi informacjami",
-    dateFrom: "1989",
-    dateTo: "",
-    category: "T",
-    amount: 3,
-    shelfId: null,
-    setId: null,
-    status: 1,
-  },
-];
-
-const initialSets = [
-  {
-    id: 1,
-    number: "20240201",
-    shelfId: 1,
-    status: 1,
-  },
-  {
-    id: 2,
-    number: "20240217",
-    shelfId: 4,
-    status: 0,
-  },
-];
-
-const initialShelves = [
-  { id: 1, name: "A-1" },
-  { id: 2, name: "A-2" },
-  { id: 3, name: "B-1" },
-  { id: 4, name: "B-2" },
-];
-
 ///// Motyw i język /////
 const theme = createTheme(
   {
@@ -86,17 +23,16 @@ const theme = createTheme(
 );
 
 export default function App() {
-  ////////// DB ///////////
+  // -- DB --
   // Pobranie półek z bazy danych
   useEffect(() => {
     getShelves().then(setShelves);
   }, []);
-  /////////////////////////
 
   // -- STANY DANYCH --
-  const [folders, setFolders] = useState(initialFolders);
-  const [sets, setSets] = useState(initialSets);
-  const [shelves, setShelves] = useState(initialShelves);
+  const [folders, setFolders] = useState([]);
+  const [sets, setSets] = useState([]);
+  const [shelves, setShelves] = useState([]);
 
   // widoki jako czytelne stringi
   const [view, setView] = useState("folder"); // "folder" | "set" | "shelf"
@@ -342,6 +278,7 @@ export default function App() {
         onSave={(formValues) => {
           // ADD
           if (dialog.mode == "add") {
+            // TODO
             if (dialog.type == "folder") {
               const folder = { ...formValues };
 
@@ -354,16 +291,27 @@ export default function App() {
 
               setFolders((prev) => [...prev, folder]);
             }
+            // TODO
             if (dialog.type == "set") {
               setSets((prev) => [...prev, formValues]);
             }
             if (dialog.type == "shelf") {
-              setShelves((prev) => [...prev, formValues]);
+              addShelf(formValues.name)
+                .then(() => {
+                  return getShelves();
+                })
+                .then((data) => {
+                  setShelves(data);
+                })
+                .catch((err) => {
+                  alert(err);
+                });
             }
           }
 
           // EDIT
           if (dialog.mode == "edit") {
+            // TODO
             if (dialog.type == "folder") {
               setFolders((prev) =>
                 prev.map((f) =>
@@ -379,6 +327,7 @@ export default function App() {
                 ),
               );
             }
+            // TODO
             if (dialog.type == "set") {
               const updatedSet = formValues;
 
@@ -397,9 +346,10 @@ export default function App() {
               );
             }
             if (dialog.type == "shelf") {
-              setShelves((prev) =>
-                prev.map((sh) => (sh.id == formValues.id ? formValues : sh)),
-              );
+              updateShelf(formValues.id, formValues.name)
+                .then(() => getShelves())
+                .then((data) => setShelves(data))
+                .catch((err) => alert(err));
             }
           }
 
@@ -407,11 +357,13 @@ export default function App() {
           if (dialog.mode == "shred") {
             const id = dialog.data?.id;
             if (id) {
+              // TODO
               if (dialog.type == "folder") {
                 setFolders((prev) =>
                   prev.map((f) => (f.id == id ? { ...f, status: 0 } : f)),
                 );
               }
+              // TODO
               if (dialog.type == "set") {
                 setSets((prev) =>
                   prev.map((s) => (s.id == id ? { ...s, status: 0 } : s)),
@@ -428,11 +380,13 @@ export default function App() {
               return;
             }
 
+            // TODO
             if (dialog.type == "folder") {
               // usuń teczkę
               setFolders((prev) => prev.filter((f) => f.id !== id));
             }
 
+            // TODO
             if (dialog.type == "set") {
               // usuń spis; dodatkowo usuń referencję setId z teczek przypisanych do tego spisu
               setSets((prev) => prev.filter((s) => s.id !== id));
@@ -442,8 +396,10 @@ export default function App() {
               );
             }
 
-            if (dialog.type == "shelf") {
-              setShelves((prev) => prev.filter((sh) => sh.id !== id));
+            if (dialog.type === "shelf") {
+              deleteShelf(id)
+                .then(() => getShelves().then(setShelves))
+                .catch((err) => alert(err));
             }
           }
 

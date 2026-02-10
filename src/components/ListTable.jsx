@@ -90,7 +90,7 @@ export default function ListTable({
             ))}
 
             {pageRows.length == 0 && (
-              <TableRow>
+              <TableRow key="no-rows">
                 <TableCell colSpan={columns.length} align="center">
                   Brak rekordów
                 </TableCell>

@@ -37,11 +37,14 @@ export default function ShelfForm({ formRef, mode, data, shelves }) {
       newErrors.name = "Wymagane";
     }
 
-    const exists = shelves?.some(
-      (s) =>
-        s.name.trim().toLowerCase() === values.name.trim().toLowerCase() &&
-        String(s.id) !== String(values.id),
-    );
+    const exists = Array.isArray(shelves)
+      ? shelves.some(
+          (s) =>
+            typeof s?.name === "string" &&
+            s.name.trim().toLowerCase() === values.name.trim().toLowerCase() &&
+            String(s.id) !== String(values.id),
+        )
+      : false;
 
     if (exists) {
       newErrors.name = "Taka półka już istnieje";
