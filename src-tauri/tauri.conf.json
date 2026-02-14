@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Archivio",
-  "version": "0.1.0",
-  "identifier": "AdamBru.Archivio",
+  "version": "1.0.0",
+  "identifier": "Archivio",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -14,7 +14,8 @@
       {
         "title": "Archivio",
         "width": 1000,
-        "height": 600
+        "height": 600,
+        "devtools": false
       }
     ],
     "security": {

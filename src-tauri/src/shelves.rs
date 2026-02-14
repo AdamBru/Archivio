@@ -1,4 +1,4 @@
-use rusqlite::{params};
+use rusqlite::{params, Connection};
 use serde::Serialize;
 use tauri::State;
 use crate::Db;
@@ -11,7 +11,7 @@ pub struct Shelf {
 }
 
 // Inicjalizacja tabeli `shelves`
-pub fn init_shelves(conn: &rusqlite::Connection) {
+pub fn init_shelves(conn: &Connection) {
     conn.execute(
         "
         CREATE TABLE IF NOT EXISTS shelves (
@@ -26,23 +26,28 @@ pub fn init_shelves(conn: &rusqlite::Connection) {
 
 // Pobieranie danych z tabeli `shelves`
 #[tauri::command]
-pub fn get_shelves(db: State<Db>) -> Vec<Shelf> {
-    let conn = db.0.lock().unwrap();
+pub fn get_shelves(db: State<Db>) -> Result<Vec<Shelf>, String> {
+	let conn = db.0.lock().unwrap();
 
-    let mut stmt = conn
-        .prepare("SELECT id, name FROM shelves ORDER BY name")
-        .unwrap();
+	let mut stmt = conn
+		.prepare("SELECT id, name FROM shelves ORDER BY name")
+		.map_err(|e| e.to_string())?;
 
-    let rows = stmt
-        .query_map([], |row| {
-            Ok(Shelf {
-                id: row.get(0)?,
-                name: row.get(1)?,
-            })
-        })
-        .unwrap();
+	let rows = stmt
+		.query_map([], |row| {
+			Ok(Shelf {
+				id: row.get(0)?,
+				name: row.get(1)?,
+			})
+		})
+		.map_err(|e| e.to_string())?;
 
-    rows.map(|r| r.unwrap()).collect()
+	let mut results = Vec::new();
+	for r in rows {
+		results.push(r.map_err(|e| e.to_string())?);
+	}
+
+	Ok(results)
 }
 
 // Dodawanie półki do tabeli `shelves`
@@ -101,7 +106,7 @@ pub fn update_shelf(db: State<Db>, id: i64, name: String) -> Result<(), String> 
     Ok(())
 }
 
-// Dodawanie półki do tabeli `shelves`
+// Usuwanie półki z tabeli `shelves`
 #[tauri::command]
 pub fn delete_shelf(db: State<Db>, id: i64) -> Result<(), String> {
     let conn = db.0.lock().unwrap();

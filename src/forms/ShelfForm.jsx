@@ -66,27 +66,29 @@ export default function ShelfForm({ formRef, mode, data, shelves }) {
   };
 
   return (
-    <Stack spacing={2}>
-      {/* ID */}
-      <TextField
-        label="ID"
-        value={"P-" + String(values.id).padStart(8, "0")}
-        disabled
-        fullWidth
-        size="small"
-      />
+    <form autoComplete="off">
+      <Stack spacing={2}>
+        {/* ID */}
+        <TextField
+          label="ID"
+          value={"P-" + String(values.id).padStart(8, "0")}
+          disabled
+          fullWidth
+          size="small"
+        />
 
-      {/* Nazwa półki */}
-      <TextField
-        label="Nazwa półki"
-        value={values.name}
-        onChange={(e) => handleChange(e.target.value)}
-        required
-        fullWidth
-        size="small"
-        error={!!errors.name}
-        helperText={errors.name}
-      />
-    </Stack>
+        {/* Nazwa półki */}
+        <TextField
+          label="Nazwa półki"
+          value={values.name}
+          onChange={(e) => handleChange(e.target.value)}
+          required
+          fullWidth
+          size="small"
+          error={!!errors.name}
+          helperText={errors.name}
+        />
+      </Stack>
+    </form>
   );
 }

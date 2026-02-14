@@ -82,63 +82,63 @@ export default function SetForm({
   };
 
   return (
-    <Stack spacing={2}>
-      {/* ID — disabled */}
-      <TextField
-        label="ID"
-        value={"S-" + String(values.id).padStart(8, "0")}
-        fullWidth
-        disabled
-        size="small"
-      />
+    <form autoComplete="off">
+      <Stack spacing={2}>
+        {/* ID — disabled */}
+        <TextField
+          label="ID"
+          value={"S-" + String(values.id).padStart(8, "0")}
+          fullWidth
+          disabled
+          size="small"
+        />
 
-      {/* Numer spisu */}
-      <TextField
-        label="Numer spisu"
-        value={values.number}
-        onChange={(e) =>
-          // nie pozwala wpisać czegoś innego niż cyfry
-          handleChange("number", e.target.value.replace(/\D/g, ""))
-        }
-        required
-        fullWidth
-        size="small"
-        error={!!errors.number}
-        helperText={errors.number}
-      />
+        {/* Numer spisu */}
+        <TextField
+          label="Numer spisu"
+          value={values.number}
+          onChange={(e) =>
+            // nie pozwala wpisać czegoś innego niż cyfry
+            handleChange("number", e.target.value.replace(/\D/g, ""))
+          }
+          required
+          fullWidth
+          size="small"
+          error={!!errors.number}
+          helperText={errors.number}
+        />
 
-      {/* Półka */}
-      <Autocomplete
-        options={shelves}
-        getOptionLabel={(option) => option.name}
-        value={shelves.find((s) => s.id === values.shelfId) || null}
-        onChange={(e, val) =>
-          setValues((v) => ({ ...v, shelfId: val ? val.id : null }))
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Półka"
-            required
-            size="small"
-            error={!!errors.shelfId}
-            helperText={errors.shelfId}
-          />
-        )}
-      />
+        {/* Półka */}
+        <Autocomplete
+          options={shelves}
+          getOptionLabel={(option) => option.name}
+          value={shelves.find((s) => s.id === values.shelfId) || null}
+          onChange={(e, val) => handleChange("shelfId", val ? val.id : null)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Półka"
+              required
+              size="small"
+              error={!!errors.shelfId}
+              helperText={errors.shelfId}
+            />
+          )}
+        />
 
-      {/* Status */}
-      <TextField
-        label="Status"
-        select
-        value={values.status}
-        onChange={(e) => handleChange("status", Number(e.target.value))}
-        fullWidth
-        size="small"
-      >
-        <MenuItem value={1}>Dostępny</MenuItem>
-        <MenuItem value={0}>Zniszczony</MenuItem>
-      </TextField>
-    </Stack>
+        {/* Status */}
+        <TextField
+          label="Status"
+          select
+          value={values.status}
+          onChange={(e) => handleChange("status", Number(e.target.value))}
+          fullWidth
+          size="small"
+        >
+          <MenuItem value={1}>Dostępny</MenuItem>
+          <MenuItem value={0}>Zniszczony</MenuItem>
+        </TextField>
+      </Stack>
+    </form>
   );
 }

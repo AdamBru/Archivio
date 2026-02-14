@@ -1,5 +1,5 @@
-import { Autocomplete, MenuItem, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
+import { TextField, Stack, MenuItem, Autocomplete } from "@mui/material";
 
 export default function FolderForm({
   formRef,
@@ -179,114 +179,116 @@ export default function FolderForm({
     : [];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
-      }}
-    >
-      {/* ID */}
-      <TextField
-        label="ID"
-        value={"T-" + String(values.id).padStart(8, "0")}
-        fullWidth
-        disabled
-        size="small"
-      />
-      {/* Znak */}
-      <Autocomplete
-        freeSolo
-        options={signOptions}
-        value={values.sign}
-        onChange={(e, val) => handleChange("sign", val || "")}
-        onInputChange={(e, val) => handleChange("sign", val)}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Znak"
-            required
-            fullWidth
-            size="small"
-            error={!!errors.sign}
-            helperText={errors.sign}
-          />
-        )}
-      />
-      {/* Tytuł */}
-      <Autocomplete
-        freeSolo
-        options={titleOptions}
-        value={values.title}
-        onChange={(e, val) => handleChange("title", val || "")}
-        onInputChange={(e, val) => handleChange("title", val)}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Tytuł"
-            required
-            fullWidth
-            size="small"
-            error={!!errors.title}
-            helperText={errors.title}
-          />
-        )}
-      />
-      {/* Data od */}
-      <TextField
-        label="Data od"
-        value={values.dateFrom}
-        onChange={(e) => handleChange("dateFrom", e.target.value)}
-        required
-        fullWidth
-        size="small"
-        error={!!errors.dateFrom}
-        helperText={errors.dateFrom}
-      />
-      {/* Data do */}
-      <TextField
-        label="Data do"
-        value={values.dateTo}
-        onChange={(e) => handleChange("dateTo", e.target.value)}
-        fullWidth
-        size="small"
-        error={!!errors.dateTo}
-        helperText={errors.dateTo}
-      />
-      {/* Kategoria */}
-      <Autocomplete
-        freeSolo
-        options={categoryOptions}
-        value={values.category}
-        onChange={(e, val) => handleChange("category", val || "")}
-        onInputChange={(e, val) => handleChange("category", val)}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Kategoria"
-            required
-            fullWidth
-            size="small"
-            error={!!errors.category}
-            helperText={errors.category}
-          />
-        )}
-      />
-      {/* Liczba teczek */}
-      <TextField
-        label="Liczba teczek"
-        type="number"
-        value={values.amount}
-        onChange={(e) => handleChange("amount", e.target.value)}
-        required
-        fullWidth
-        size="small"
-        error={!!errors.amount}
-        helperText={errors.amount}
-      />
-      {/* Półka */}{" "}
-      {/* NIE MOŻNA DODAĆ TECZKI BEZ SPISU DO PÓŁKI (czyli między innymi nowotworzonej, jak tu) */}
-      {/* <Autocomplete
+    <form autoComplete="off">
+      <Stack spacing={2}>
+        {/* ID */}
+        <TextField
+          label="ID"
+          value={"T-" + String(values.id).padStart(8, "0")}
+          fullWidth
+          disabled
+          size="small"
+        />
+        {/* Znak */}
+        <Autocomplete
+          freeSolo
+          options={signOptions}
+          value={values.sign}
+          onChange={(e, val) => handleChange("sign", val || "")}
+          onInputChange={(e, val) => handleChange("sign", val)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Znak"
+              required
+              fullWidth
+              size="small"
+              error={!!errors.sign}
+              helperText={errors.sign}
+            />
+          )}
+        />
+        {/* Tytuł */}
+        <Autocomplete
+          freeSolo
+          options={titleOptions}
+          value={values.title}
+          onChange={(e, val) => handleChange("title", val || "")}
+          onInputChange={(e, val) => handleChange("title", val)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Tytuł"
+              required
+              fullWidth
+              size="small"
+              error={!!errors.title}
+              helperText={errors.title}
+            />
+          )}
+        />
+        {/* Data od */}
+        <TextField
+          label="Data od"
+          value={values.dateFrom}
+          onChange={(e) =>
+            handleChange("dateFrom", e.target.value.replace(/\D/g, ""))
+          }
+          required
+          fullWidth
+          size="small"
+          error={!!errors.dateFrom}
+          helperText={errors.dateFrom}
+        />
+        {/* Data do */}
+        <TextField
+          label="Data do"
+          value={values.dateTo}
+          onChange={(e) =>
+            handleChange("dateTo", e.target.value.replace(/\D/g, ""))
+          }
+          fullWidth
+          size="small"
+          error={!!errors.dateTo}
+          helperText={errors.dateTo}
+        />
+        {/* Kategoria */}
+        <Autocomplete
+          freeSolo
+          options={categoryOptions}
+          value={values.category}
+          onChange={(e, val) => handleChange("category", val || "")}
+          onInputChange={(e, val) => handleChange("category", val)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Kategoria"
+              required
+              fullWidth
+              size="small"
+              error={!!errors.category}
+              helperText={errors.category}
+            />
+          )}
+        />
+        {/* Liczba teczek */}
+        <TextField
+          label="Liczba teczek"
+          type="number"
+          value={values.amount}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, "");
+            handleChange("amount", digits === "" ? "" : Number(digits));
+          }}
+          required
+          fullWidth
+          size="small"
+          error={!!errors.amount}
+          helperText={errors.amount}
+        />
+        {/* Półka */}{" "}
+        {/* NIE MOŻNA DODAĆ TECZKI BEZ SPISU DO PÓŁKI (czyli między innymi nowotworzonej, jak tu, więc jest to zakomentowane) */}
+        {/* <Autocomplete
         options={shelves}
         getOptionLabel={(option) => option.name}
         value={shelves.find((s) => s.id === values.shelfId) || null}
@@ -298,45 +300,46 @@ export default function FolderForm({
 		  )}
         )}
       /> */}
-      {/* ID Spisu */}
-      <Autocomplete
-        options={sets.filter((s) => s.status === 1)} // do wyboru do przypisaniateczki do spisu wyłącznie dostępne niezniszczone spisy
-        getOptionLabel={(option) =>
-          `S-${String(option.id).padStart(8, "0")} (nr ${option.number})`
-        }
-        value={sets.find((s) => s.id === values.setId) || null}
-        onChange={(e, val) => handleChange("setId", val ? val.id : null)}
-        renderOption={(props, option) => (
-          <li key={option.id} {...props}>
-            S-{String(option.id).padStart(8, "0")}{" "}
-            <span style={{ color: "#888", marginLeft: "1em" }}>
-              (nr {option.number})
-            </span>
-          </li>
-        )}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="W spisie"
-            fullWidth
-            size="small"
-            error={!!errors.setId}
-            helperText={errors.setId}
-          />
-        )}
-      />
-      {/* Status */}
-      <TextField
-        label="Status"
-        select
-        value={values.status}
-        onChange={(e) => handleChange("status", Number(e.target.value))}
-        fullWidth
-        size="small"
-      >
-        <MenuItem value={1}>Dostępne</MenuItem>
-        <MenuItem value={0}>Zniszczone</MenuItem>
-      </TextField>
-    </div>
+        {/* ID Spisu */}
+        <Autocomplete
+          options={sets.filter((s) => s.status === 1)} // do wyboru do przypisaniateczki do spisu wyłącznie dostępne niezniszczone spisy
+          getOptionLabel={(option) =>
+            `S-${String(option.id).padStart(8, "0")} (nr ${option.number})`
+          }
+          value={sets.find((s) => s.id === values.setId) || null}
+          onChange={(e, val) => handleChange("setId", val ? val.id : null)}
+          renderOption={(props, option) => (
+            <li key={option.id} {...props}>
+              S-{String(option.id).padStart(8, "0")}{" "}
+              <span style={{ color: "#888", marginLeft: "1em" }}>
+                (nr {option.number})
+              </span>
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="W spisie"
+              fullWidth
+              size="small"
+              error={!!errors.setId}
+              helperText={errors.setId}
+            />
+          )}
+        />
+        {/* Status */}
+        <TextField
+          label="Status"
+          select
+          value={values.status}
+          onChange={(e) => handleChange("status", Number(e.target.value))}
+          fullWidth
+          size="small"
+        >
+          <MenuItem value={1}>Dostępne</MenuItem>
+          <MenuItem value={0}>Zniszczone</MenuItem>
+        </TextField>
+      </Stack>
+    </form>
   );
 }

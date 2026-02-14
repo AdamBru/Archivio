@@ -1,3 +1,5 @@
+import { useState } from "react";
+import SettingsDialog from "./SettingsDialog";
 import {
   AppBar,
   Box,
@@ -17,6 +19,7 @@ import DeselectIcon from "@mui/icons-material/Deselect";
 import HelpIcon from "@mui/icons-material/Help";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EditIcon from "@mui/icons-material/Edit";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 export default function SystemBar({
   activeView,
@@ -31,6 +34,14 @@ export default function SystemBar({
   onSettings,
   selection,
 }) {
+  // Odśwież widok
+  function refresh() {
+    window.location.reload();
+  }
+
+  // Stan otwarcia okna ustawień
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   return (
     <AppBar position="fixed" elevation={0} className="system-menu">
       {/* ---- GÓRNY PASEK ---- */}
@@ -73,7 +84,28 @@ export default function SystemBar({
 
         <Box sx={{ flexGrow: 1 }} />
 
-        {/* Po prawej na górnym pasku - Pomoc, Ustawienia */}
+        {/* Po prawej na górnym pasku - Odśwież, Ustawienia, Pomoc */}
+        <Divider orientation="vertical" flexItem />
+        <Button
+          color="inherit"
+          size="small"
+          startIcon={<RefreshIcon />}
+          onClick={refresh}
+        >
+          Odśwież
+        </Button>
+        <Divider orientation="vertical" flexItem />
+        <Button
+          color="inherit"
+          size="small"
+          startIcon={<SettingsIcon />}
+          onClick={() => {
+            if (onSettings) onSettings();
+            setSettingsOpen(true);
+          }}
+        >
+          Ustawienia
+        </Button>
         <Divider orientation="vertical" flexItem />
         <Button
           color="inherit"
@@ -82,15 +114,6 @@ export default function SystemBar({
           onClick={onHelp}
         >
           Pomoc
-        </Button>
-        <Divider orientation="vertical" flexItem />
-        <Button
-          color="inherit"
-          size="small"
-          startIcon={<SettingsIcon />}
-          onClick={onSettings}
-        >
-          Ustawienia
         </Button>
       </Toolbar>
 
@@ -158,6 +181,12 @@ export default function SystemBar({
         </Button>
         <Divider orientation="vertical" flexItem />
       </Toolbar>
+
+      {/* ---- Wywołanie okna ustawień ---- */}
+      <SettingsDialog
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </AppBar>
   );
 }

@@ -7,8 +7,13 @@ import SystemDialog from "./components/SystemDialog";
 import ShelfView from "./views/ShelfView";
 import SetView from "./views/SetView";
 import FolderView from "./views/FolderView";
-// DB imports
+// DB API imports
+// prettier-ignore
 import { getShelves, addShelf, updateShelf, deleteShelf } from "./api/shelves";
+// prettier-ignore
+import { getSets, addSet, updateSet, deleteSet, shredSet } from "./api/sets";
+// prettier-ignore
+import { getFolders, addFolder, updateFolder, deleteFolder, shredFolder } from "./api/folders";
 
 ///// Motyw i język /////
 const theme = createTheme(
@@ -23,10 +28,63 @@ const theme = createTheme(
 );
 
 export default function App() {
+  // -- BLOKADY --
+  // Blokada prawego przycisku myszy
+  useEffect(() => {
+    const handler = (e) => e.preventDefault();
+    window.addEventListener("contextmenu", handler);
+
+    return () => {
+      window.removeEventListener("contextmenu", handler);
+    };
+  }, []);
+  // Blokada skrótów klawiszowych do DevTools
+  useEffect(() => {
+    const handler = (e) => {
+      // blokuj F12 i Ctrl+Shift+I / Cmd+Option+I
+      if (
+        e.key === "f12" ||
+        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+        (e.metaKey && e.altKey && e.key === "I") ||
+        (e.ctrlKey && e.key === "p") ||
+        (e.metaKey && e.key === "p")
+      ) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  // Ctrl/Cmd + F = podświtlenie inputa w SearchBar
+  useEffect(() => {
+    const handler = (e) => {
+      const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+      const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
+
+      if (ctrlOrCmd && e.key === "f") {
+        e.preventDefault();
+
+        const searchInput = document.querySelector(
+          ".search-bar input[type='search']",
+        );
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   // -- DB --
   // Pobranie półek z bazy danych
   useEffect(() => {
     getShelves().then(setShelves);
+    getSets().then(setSets);
+    getFolders().then(setFolders);
   }, []);
 
   // -- STANY DANYCH --
@@ -209,10 +267,10 @@ export default function App() {
 
       <Stack
         style={{
-          minHeight: "100%",
+          minHeight: "100vh",
           maxWidth: 1200,
           margin: "0 auto",
-          padding: "5rem 1rem",
+          padding: "5rem 1rem 0 1rem",
           gap: 15,
           flex: 1,
         }}
@@ -278,7 +336,7 @@ export default function App() {
         onSave={(formValues) => {
           // ADD
           if (dialog.mode == "add") {
-            // TODO
+            // ADD FOLDER
             if (dialog.type == "folder") {
               const folder = { ...formValues };
 
@@ -289,12 +347,20 @@ export default function App() {
                 folder.shelfId = null;
               }
 
-              setFolders((prev) => [...prev, folder]);
+              addFolder(folder)
+                .then(() => getFolders())
+                .then(setFolders)
+                .catch((err) => alert(err));
             }
-            // TODO
-            if (dialog.type == "set") {
-              setSets((prev) => [...prev, formValues]);
+
+            // ADD SET
+            if (dialog.type === "set") {
+              addSet(formValues)
+                .then(() => getSets())
+                .then(setSets)
+                .catch((err) => alert(err));
             }
+            // ADD SHELF
             if (dialog.type == "shelf") {
               addShelf(formValues.name)
                 .then(() => {
@@ -311,40 +377,30 @@ export default function App() {
 
           // EDIT
           if (dialog.mode == "edit") {
-            // TODO
-            if (dialog.type == "folder") {
+            // EDIT FOLDER
+            if (dialog.type === "folder") {
+              updateFolder(formValues)
+                .then(() => getFolders())
+                .then(setFolders)
+                .catch((err) => alert(err));
+            }
+            // EDIT SET
+            if (dialog.type === "set") {
+              updateSet(formValues)
+                .then(() => getSets())
+                .then(setSets)
+                .catch((err) => alert(err));
+
+              // kaskadowa zmiana półki teczek przypisanych do spisu
               setFolders((prev) =>
                 prev.map((f) =>
-                  f.id === formValues.id
-                    ? {
-                        ...formValues,
-                        shelfId: formValues.setId
-                          ? (sets.find((s) => s.id === formValues.setId)
-                              ?.shelfId ?? null)
-                          : null,
-                      }
+                  f.setId === formValues.id
+                    ? { ...f, shelfId: formValues.shelfId }
                     : f,
                 ),
               );
             }
-            // TODO
-            if (dialog.type == "set") {
-              const updatedSet = formValues;
-
-              // krok 1. aktualizuj spis
-              setSets((prev) =>
-                prev.map((s) => (s.id === updatedSet.id ? updatedSet : s)),
-              );
-
-              // krok 2. kaskadowo zaktualizuj półki teczek przypisanych do spisu
-              setFolders((prev) =>
-                prev.map((f) =>
-                  f.setId === updatedSet.id
-                    ? { ...f, shelfId: updatedSet.shelfId }
-                    : f,
-                ),
-              );
-            }
+            // EDIT SHELF
             if (dialog.type == "shelf") {
               updateShelf(formValues.id, formValues.name)
                 .then(() => getShelves())
@@ -357,17 +413,19 @@ export default function App() {
           if (dialog.mode == "shred") {
             const id = dialog.data?.id;
             if (id) {
-              // TODO
+              // SHRED FOLDER
               if (dialog.type == "folder") {
-                setFolders((prev) =>
-                  prev.map((f) => (f.id == id ? { ...f, status: 0 } : f)),
-                );
+                shredFolder(dialog.data.id)
+                  .then(() => getFolders())
+                  .then(setFolders)
+                  .catch((err) => alert(err));
               }
-              // TODO
-              if (dialog.type == "set") {
-                setSets((prev) =>
-                  prev.map((s) => (s.id == id ? { ...s, status: 0 } : s)),
-                );
+              // SHRED SET
+              if (dialog.type === "set") {
+                shredSet(dialog.data.id)
+                  .then(() => getSets())
+                  .then(setSets)
+                  .catch((err) => alert(err));
               }
             }
           }
@@ -379,23 +437,30 @@ export default function App() {
               setDialog((d) => ({ ...d, open: false }));
               return;
             }
-
-            // TODO
+            // DELETE FOLDER
             if (dialog.type == "folder") {
-              // usuń teczkę
-              setFolders((prev) => prev.filter((f) => f.id !== id));
+              deleteFolder(dialog.data.id)
+                .then(() => getFolders())
+                .then(setFolders)
+                .catch((err) => alert(err));
             }
+            // DELETE SET
+            if (dialog.type === "set") {
+              const id = dialog.data.id;
 
-            // TODO
-            if (dialog.type == "set") {
-              // usuń spis; dodatkowo usuń referencję setId z teczek przypisanych do tego spisu
-              setSets((prev) => prev.filter((s) => s.id !== id));
+              deleteSet(id)
+                .then(() => getSets())
+                .then(setSets)
+                .catch((err) => alert(err));
 
+              // odpinanie teczek po usunięciu (nie zniszczeniu, bo nawet się nie da zniszczyć spisu jeśli ma podpięte teczki) spisu
               setFolders((prev) =>
-                prev.map((f) => (f.setId === id ? { ...f, setId: null } : f)),
+                prev.map((f) =>
+                  f.setId === id ? { ...f, setId: null, shelfId: null } : f,
+                ),
               );
             }
-
+            // DELETE SHELF
             if (dialog.type === "shelf") {
               deleteShelf(id)
                 .then(() => getShelves().then(setShelves))
