@@ -9,7 +9,7 @@ use std::sync::Mutex;
 use shelves::{ init_shelves, get_shelves, add_shelf, update_shelf, delete_shelf };
 use sets::{ init_sets, get_sets, add_set, update_set, shred_set, delete_set };
 use folders::{ init_folders, get_folders, add_folder, update_folder, shred_folder, delete_folder };
-use dbfile::{ export_database, import_database };
+use dbfile::{ export_database, import_database, reset_database };
 
 struct Db(Mutex<Connection>);
 
@@ -67,6 +67,7 @@ pub fn run() {
 				// komendy operacji na pliku bazy danych
 				export_database,
 				import_database,
+				reset_database,
             ]
         )
         .run(tauri::generate_context!())

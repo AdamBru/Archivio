@@ -98,8 +98,8 @@ export default function SetForm({
           label="Numer spisu"
           value={values.number}
           onChange={(e) =>
-            // nie pozwala wpisać czegoś innego niż cyfry
-            handleChange("number", e.target.value.replace(/\D/g, ""))
+            // nie pozwala wpisać czegoś innego niż cyfry lub "/"
+            handleChange("number", e.target.value.replace(/[^0-9/]/g, ""))
           }
           required
           fullWidth

@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { openHelp } from "../../api/window";
 
 import { Button, Typography, Box, Link } from "@mui/material";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
@@ -24,7 +25,8 @@ export default function SettingsImportExport() {
           disableElevation
           onClick={async () => {
             try {
-              await invoke("export_database");
+              const message = await invoke("export_database");
+              alert(message);
             } catch (err) {
               if (err !== "Eksport został anulowany.") {
                 alert("Błąd eksportu: " + err);
@@ -49,7 +51,13 @@ export default function SettingsImportExport() {
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: "light" }} gutterBottom>
           Jeśli nastąpił przypadkowy/błędny import, zajrzyj do{" "}
-          <Link>Pomocy</Link>.
+          <Link
+            sx={{ cursor: "pointer" }}
+            onClick={() => openHelp("problems.html#deleted-database")}
+          >
+            Pomocy
+          </Link>
+          .
         </Typography>
 
         <Button
@@ -87,7 +95,14 @@ export default function SettingsImportExport() {
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: "light" }} gutterBottom>
           Jeśli nastąpiło przypadkowe/błędne przywrócenie stanu początkowego,
-          zajrzyj do <Link>Pomocy</Link>.
+          zajrzyj do{" "}
+          <Link
+            sx={{ cursor: "pointer" }}
+            onClick={() => openHelp("problems.html#deleted-database")}
+          >
+            Pomocy
+          </Link>
+          .
         </Typography>
 
         <Button
@@ -96,6 +111,17 @@ export default function SettingsImportExport() {
           startIcon={<DeleteForeverIcon />}
           sx={{ my: 1 }}
           disableElevation
+          onClick={async () => {
+            try {
+              const message = await invoke("reset_database");
+              alert(message);
+              window.location.reload();
+            } catch (err) {
+              if (err !== "Resetowanie anulowane.") {
+                alert("Błąd resetowania bazy danych: " + err);
+              }
+            }
+          }}
         >
           Resetuj
         </Button>

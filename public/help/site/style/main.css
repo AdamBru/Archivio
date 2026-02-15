@@ -1,0 +1,26 @@
+:root > * {
+  --md-primary-fg-color: #2b77bd;
+}
+
+header {
+  box-shadow: none !important;
+}
+
+/* --- index --- */
+img[alt="logo"] {
+  max-width: 4rem;
+}
+
+.no-margin {
+  margin-top: 0 !important;
+}
+/* ------------- */
+
+img[alt="icon"] {
+  transform: translateY(0.2rem);
+  margin-right: 0.2rem;
+}
+
+img[alt="image"] {
+  box-shadow: 0 0 15px 5px #eee;
+}

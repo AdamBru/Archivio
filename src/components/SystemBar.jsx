@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { openHelp } from "../api/window";
+
 import SettingsDialog from "./SettingsDialog";
 import {
   AppBar,
@@ -111,7 +113,7 @@ export default function SystemBar({
           color="inherit"
           size="small"
           startIcon={<HelpIcon />}
-          onClick={onHelp}
+          onClick={() => openHelp("index.html")}
         >
           Pomoc
         </Button>

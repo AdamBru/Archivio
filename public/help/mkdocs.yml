@@ -1,0 +1,33 @@
+site_name: Pomoc
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: custom
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  language: pl
+  features:
+    - search.highlight
+    - navigation.expand
+copyright: AdamBru &copy; 2026
+extra_css:
+  - style/main.css
+plugins:
+  - search
+  - offline
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.keys
+
+nav:
+  - Archivio - Pomoc: index.html
+  - Interfejs: interface.html
+  - Widoki:
+      - Teczki: folders.html
+      - Spisy: sets.html
+      - Półki: shelves.html
+  - Ustawienia: settings.html
+  - Import, eksport i resetowanie: import-export.html
+  - Problemy: problems.html

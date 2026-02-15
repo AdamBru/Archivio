@@ -11,3 +11,9 @@
 - duża refaktoryzacja
 - doprowadzenie systemu do pełnej podstawowej funkcjonalności
 - system nadal w wersji przeglądarkowej
+
+## 1.0.0
+
+15.2.2026
+
+- Pierwsze oficjalne wydanie
